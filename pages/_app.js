@@ -1,13 +1,29 @@
-import React from 'react';
-import Header from '../components/Header';
-import GlobalStyle from '../styles/global-style';
+import { useEffect, useState } from "react";
+import Header from "../components/Header";
+import GlobalStyle from "../styles/global-style";
+import PageTransition from "../components/PageTransition";
+import { useRouter } from "next/router";
 
 const MyApp = ({ Component, pageProps }) => {
-  
+  // we use the routingPageOffset to prevent the window from scrolling to top before the animation
+  const [routingPageOffset, setRoutingPageOffset] = useState(0);
+  const router = useRouter();
+
+  useEffect(() => {
+    const pageChange = () => {
+      setRoutingPageOffset(window.scrollY);
+    };
+    router.events.on("routeChangeStart", pageChange);
+  }, [router.events]);
   return (
     <>
       <Header />
-      <Component  {...pageProps} />
+      <PageTransition
+        route={router.asPath}
+        routingPageOffset={routingPageOffset}
+      >
+        <Component {...pageProps} />
+      </PageTransition>
       <GlobalStyle />
       <style jsx global>{`
         html,
@@ -26,7 +42,5 @@ const MyApp = ({ Component, pageProps }) => {
     </>
   );
 };
-
-
 
 export default MyApp;
